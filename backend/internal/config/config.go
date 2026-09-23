@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -17,8 +18,10 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port   int
-	AppEnv string
+	Port              int
+	AppEnv            string
+	AllowedOrigins    []string
+	CleanupIntervalMS int //Intervalo de limpieza en milisegundos para la tabla de idempotencia
 }
 
 type DBConfig struct {
@@ -50,8 +53,10 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Server: ServerConfig{
-			Port:   serverPort,
-			AppEnv: getEnv("APP_ENV", "development"),
+			Port:              serverPort,
+			AppEnv:            getEnv("APP_ENV", "development"),
+			AllowedOrigins:    strings.Split(getEnv("ALLOWED_ORIGINS", "http://localhost:4200"), ","),
+			CleanupIntervalMS: getEnvAsInt("CLEANUP_INTERVAL_MS", 3_600_000), // 1 hora por defecto
 		},
 		DB: DBConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
@@ -91,4 +96,15 @@ func requireEnv(key string) string {
 		panic(fmt.Sprintf("variable de entorno requerida no definida: %s", key))
 	}
 	return value
+}
+func getEnvAsInt(key string, defaultValue int) int {
+	value, ok := os.LookupEnv(key)
+	if !ok || value == "" {
+		return defaultValue
+	}
+	n, err := strconv.Atoi(value)
+	if err != nil {
+		return defaultValue
+	}
+	return n
 }
