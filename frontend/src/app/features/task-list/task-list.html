@@ -1,0 +1,81 @@
+<header class="page-header">
+  <div>
+    <h1>Tareas</h1>
+    <p class="page-header__subtitle">
+      {{ pendingTasks() }} pendientes · {{ completedTasks() }} completadas
+    </p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="onNewTask()">
+    + Nueva tarea
+  </button>
+</header>
+
+<section class="filters" aria-label="Filtros">
+  <input
+    type="search"
+    class="filters__search"
+    placeholder="Buscar por título o descripción..."
+    [value]="search()"
+    (input)="onSearchChange($any($event.target).value)"
+  />
+
+  <select
+    class="filters__select"
+    [value]="priorityFilter() ?? ''"
+    (change)="onPriorityChange($any($event.target).value)"
+    aria-label="Filtrar por prioridad"
+  >
+    <option value="">Todas las prioridades</option>
+    @for (p of priorities; track p) {
+      <option [value]="p">{{ p }}</option>
+    }
+  </select>
+
+  <label class="filters__checkbox">
+    <input
+      type="checkbox"
+      [checked]="showDeleted()"
+      (change)="onShowDeletedChange($any($event.target).checked)"
+    />
+    Mostrar eliminadas
+  </label>
+
+  <button type="button" class="btn btn--ghost" (click)="clearFilters()">
+    Limpiar
+  </button>
+</section>
+
+@if (error(); as err) {
+  <div class="alert alert--error" role="alert">
+    <span>{{ err.message }}</span>
+    <button type="button" class="alert__close" (click)="onClearError()" aria-label="Cerrar">×</button>
+  </div>
+}
+
+@if (loading()) {
+  <div class="state state--loading">
+    <div class="spinner"></div>
+    <p>Cargando tareas...</p>
+  </div>
+} @else if (isEmpty()) {
+  <div class="state state--empty">
+    <p class="state__icon">📝</p>
+    <h2>No hay tareas todavía</h2>
+    <p>Crea la primera tarea para empezar.</p>
+    <button type="button" class="btn btn--primary" (click)="onNewTask()">
+      + Crear mi primera tarea
+    </button>
+  </div>
+} @else {
+  <div class="task-list">
+    @for (task of tasks(); track task.id) {
+      <app-task-card
+        [task]="task"
+        (toggleCompleted)="onToggleCompleted($event)"
+        (edit)="onEdit($event)"
+        (remove)="onRemove($event)"
+        (restore)="onRestore($event)"
+      />
+    }
+  </div>
+}

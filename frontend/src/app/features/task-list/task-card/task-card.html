@@ -1,0 +1,81 @@
+<article
+  class="task-card"
+  [class.task-card--completed]="task().completed"
+  [class.task-card--deleted]="task().deleted_at"
+>
+  <div class="task-card__row">
+    <button
+      type="button"
+      class="task-card__checkbox"
+      [class.is-checked]="task().completed"
+      [attr.aria-label]="task().completed ? 'Marcar como pendiente' : 'Marcar como completada'"
+      [disabled]="!!task().deleted_at"
+      (click)="onToggle()"
+    >
+      @if (task().completed) { ✓ }
+    </button>
+
+    <div class="task-card__content">
+      <h3 class="task-card__title">{{ task().title }}</h3>
+
+      @if (task().description) {
+        <p class="task-card__description">{{ task().description }}</p>
+      }
+
+      <div class="task-card__meta">
+        <span [class]="priorityClass(task().priority)">
+          {{ priorityLabel(task().priority) }}
+        </span>
+
+        @if (task().due_date) {
+          <span
+            class="task-card__due"
+            [class.task-card__due--overdue]="isPast(task().due_date) && !task().completed"
+          >
+            📅 Vence: {{ formatDate(task().due_date!) }}
+          </span>
+        }
+
+        @for (tag of task().tags ?? []; track tag.id) {
+          <span class="task-card__tag">#{{ tag.name }}</span>
+        }
+      </div>
+
+      @if (task().deleted_at) {
+        <p class="task-card__deleted-notice">
+          Eliminada el {{ formatDateTime(task().deleted_at!) }}
+        </p>
+      }
+    </div>
+
+    <div class="task-card__actions">
+      @if (task().deleted_at) {
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="onRestore()"
+          title="Restaurar"
+        >
+          Restaurar
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="onEdit()"
+          title="Editar"
+        >
+          Editar
+        </button>
+        <button
+          type="button"
+          class="btn btn--danger"
+          (click)="onRemove()"
+          title="Eliminar"
+        >
+          Eliminar
+        </button>
+      }
+    </div>
+  </div>
+</article>

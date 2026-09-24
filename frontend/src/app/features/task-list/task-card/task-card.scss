@@ -1,0 +1,183 @@
+.task-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e0;
+  }
+
+  &--completed {
+    opacity: 0.7;
+
+    .task-card__title {
+      text-decoration: line-through;
+      color: #718096;
+    }
+  }
+
+  &--deleted {
+    background: #fafafa;
+    border-style: dashed;
+  }
+}
+
+.task-card__row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.task-card__checkbox {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e0;
+  background: white;
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: #3182ce;
+  }
+
+  &.is-checked {
+    background: #3182ce;
+    border-color: #3182ce;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.task-card__content {
+  flex: 1;
+  min-width: 0; // permite que el texto trunque si es largo
+}
+
+.task-card__title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a202c;
+  word-break: break-word;
+}
+
+.task-card__description {
+  margin: 0 0 0.5rem;
+  color: #4a5568;
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.task-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.task-card__due {
+  color: #4a5568;
+
+  &--overdue {
+    color: #c53030;
+    font-weight: 600;
+  }
+}
+
+.task-card__tag {
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.task-card__deleted-notice {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.task-card__actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+// ─── Badges de prioridad ───────────────────────────────────────────────
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &--high {
+    background: #fed7d7;
+    color: #822727;
+  }
+
+  &--medium {
+    background: #feebc8;
+    color: #7b341e;
+  }
+
+  &--low {
+    background: #c6f6d5;
+    color: #22543d;
+  }
+}
+
+// ─── Botones ───────────────────────────────────────────────────────────
+.btn {
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+
+  &--ghost {
+    background: transparent;
+    color: #4a5568;
+    border-color: #e2e8f0;
+
+    &:hover {
+      background: #edf2f7;
+      color: #1a202c;
+    }
+  }
+
+  &--danger {
+    background: transparent;
+    color: #c53030;
+    border-color: #fed7d7;
+
+    &:hover {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+  }
+}
