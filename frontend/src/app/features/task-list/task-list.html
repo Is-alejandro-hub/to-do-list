@@ -11,38 +11,107 @@
 </header>
 
 <section class="filters" aria-label="Filtros">
-  <input
-    type="search"
-    class="filters__search"
-    placeholder="Buscar por título o descripción..."
-    [value]="search()"
-    (input)="onSearchChange($any($event.target).value)"
-  />
-
-  <select
-    class="filters__select"
-    [value]="priorityFilter() ?? ''"
-    (change)="onPriorityChange($any($event.target).value)"
-    aria-label="Filtrar por prioridad"
-  >
-    <option value="">Todas las prioridades</option>
-    @for (p of priorities; track p) {
-      <option [value]="p">{{ p }}</option>
-    }
-  </select>
-
-  <label class="filters__checkbox">
+  <div class="filters__row">
     <input
-      type="checkbox"
-      [checked]="showDeleted()"
-      (change)="onShowDeletedChange($any($event.target).checked)"
+      type="search"
+      class="filters__search"
+      placeholder="Buscar por título o descripción..."
+      [value]="searchInput()"
+      (input)="onSearchChange($any($event.target).value)"
     />
-    Mostrar eliminadas
-  </label>
 
-  <button type="button" class="btn btn--ghost" (click)="clearFilters()">
-    Limpiar
-  </button>
+    <select
+      class="filters__select"
+      [value]="priorityFilter() ?? ''"
+      (change)="onPriorityChange($any($event.target).value)"
+      aria-label="Filtrar por prioridad"
+    >
+      <option value="">Todas las prioridades</option>
+      @for (p of priorities; track p) {
+        <option [value]="p">
+          @switch (p) {
+            @case ('HIGH') { Alta }
+            @case ('MEDIUM') { Media }
+            @case ('LOW') { Baja }
+          }
+        </option>
+      }
+    </select>
+
+    <label class="filters__checkbox">
+      <input
+        type="checkbox"
+        [checked]="showDeleted()"
+        (change)="onShowDeletedChange($any($event.target).checked)"
+      />
+      Mostrar eliminadas
+    </label>
+  </div>
+
+  <details class="filters__advanced">
+   <summary class="filters__advanced-summary">
+     <span class="filters__advanced-content">
+       <span class="filters__advanced-chevron">▸</span>
+       <span>Filtros avanzados</span>
+       @if (activeFiltersCount() > 0) {
+         <span class="filters__badge">{{ activeFiltersCount() }}</span>
+       }
+     </span>
+   </summary>
+
+    <div class="filters__row">
+      <div class="filters__field">
+        <label for="dueAfter" class="filters__label">Vence desde</label>
+        <input
+          id="dueAfter"
+          type="date"
+          class="filters__input"
+          [value]="dueAfter()"
+          (change)="onDueAfterChange($any($event.target).value)"
+        />
+      </div>
+
+      <div class="filters__field">
+        <label for="dueBefore" class="filters__label">Vence hasta</label>
+        <input
+          id="dueBefore"
+          type="date"
+          class="filters__input"
+          [value]="dueBefore()"
+          (change)="onDueBeforeChange($any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    @if (availableTags().length > 0) {
+      <div class="filters__tags-section">
+        <span class="filters__label">Etiquetas</span>
+        <div class="filters__tags">
+          @for (tag of availableTags(); track tag.id) {
+            <button
+              type="button"
+              class="filters__tag"
+              [class.is-selected]="isTagSelected(tag.name)"
+              (click)="toggleTag(tag.name)"
+            >
+              #{{ tag.name }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="filters__actions">
+      <button
+        type="button"
+        class="btn btn--ghost"
+        (click)="clearFilters()"
+        [disabled]="!hasActiveFilters() && !showDeleted()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+  </details>
 </section>
 
 @if (error(); as err) {
@@ -57,13 +126,22 @@
     <div class="spinner"></div>
     <p>Cargando tareas...</p>
   </div>
-} @else if (isEmpty()) {
+} @else if (emptyByNoTasks()) {
   <div class="state state--empty">
     <p class="state__icon">📝</p>
     <h2>No hay tareas todavía</h2>
     <p>Crea la primera tarea para empezar.</p>
     <button type="button" class="btn btn--primary" (click)="onNewTask()">
       + Crear mi primera tarea
+    </button>
+  </div>
+} @else if (emptyByFilters()) {
+  <div class="state state--empty">
+    <p class="state__icon">🔍</p>
+    <h2>Sin resultados</h2>
+    <p>Ninguna tarea coincide con los filtros aplicados.</p>
+    <button type="button" class="btn btn--ghost" (click)="clearFilters()">
+      Limpiar filtros
     </button>
   </div>
 } @else {
