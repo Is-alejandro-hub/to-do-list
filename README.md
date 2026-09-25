@@ -22,6 +22,7 @@ Desarrollada como prueba técnica full-stack. Incluye CRUD completo, idempotenci
 - [Tests](#-tests)
 - [Build de producción](#-build-de-producción)
 - [Flujo de trabajo con Git](#-flujo-de-trabajo-con-git)
+- [Documentación adicional](#-documentación-adicional)
 
 ---
 
@@ -510,6 +511,18 @@ refactor(frontend): centralizar sistema de diseño con variables SCSS
 docs: agregar README principal del proyecto
 chore(db): agregar migración para índice de búsqueda
 ```
+
+---
+---
+
+## 📚 Documentación adicional
+
+Además de este README, el proyecto incluye documentación especializada en la carpeta `docs/`:
+
+- **[`docs/guia-usuario.md`](docs/guia-usuario.md)**: guía completa para usuarios finales: flujos típicos, funcionalidades avanzadas y preguntas frecuentes.
+- **[`docs/decisiones.md`](docs/decisiones.md)**: 20 decisiones de diseño documentadas con contexto, alternativas y trade-offs (formato ADR).
+- **[`docs/diagramas.md`](docs/diagramas.md)**: diagramas de arquitectura, flujos y modelo entidad-relación (renderizables con Mermaid).
+- **[`database/01_schema.sql`](database/01_schema.sql)**: esquema completo de la base de datos con comentarios.
 
 ---
 
