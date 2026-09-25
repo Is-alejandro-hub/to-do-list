@@ -3,12 +3,12 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
-      "@core/*": ["src/app/core/*"],
-      "@features/*": ["src/app/features/*"],
-      "@shared/*": ["src/app/shared/*"],
-      "@env/*": ["src/environments/*"]
+      "@core/*": ["./src/app/core/*"],
+      "@features/*": ["./src/app/features/*"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@env/*": ["./src/environments/*"]
     },
     "strict": true,
     "noImplicitOverride": true,
@@ -20,7 +20,8 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "module": "preserve"
+    "module": "preserve",
+    "moduleResolution": "bundler"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
