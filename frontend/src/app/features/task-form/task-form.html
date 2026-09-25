@@ -1,0 +1,133 @@
+<header class="page-header">
+  <div>
+    <h1>{{ isEditMode() ? 'Editar tarea' : 'Nueva tarea' }}</h1>
+    <p class="page-header__subtitle">
+      @if (isEditMode()) {
+        Modifica los campos que necesites y guarda los cambios.
+      } @else {
+        Completa los campos para registrar una nueva tarea.
+      }
+    </p>
+  </div>
+</header>
+
+@if (loadingTask()) {
+  <div class="state state--loading">
+    <div class="spinner"></div>
+    <p>Cargando tarea...</p>
+  </div>
+} @else {
+  <form class="task-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    @if (serverError()) {
+      <div class="alert alert--error" role="alert">
+        {{ serverError() }}
+      </div>
+    }
+
+    <!-- Título -->
+    <div class="field">
+      <label for="title" class="field__label">
+        Título <span class="field__required">*</span>
+      </label>
+      <input
+        id="title"
+        type="text"
+        class="field__input"
+        formControlName="title"
+        placeholder="Ej: Hacer ejercicio"
+        autocomplete="off"
+        [class.field__input--error]="title.invalid && title.touched"
+      />
+      @if (title.touched && title.errors) {
+        <p class="field__error">
+          @if (title.errors['required']) { El título es obligatorio. }
+          @if (title.errors['maxlength']) {
+            El título no puede superar los 255 caracteres.
+          }
+        </p>
+      }
+    </div>
+
+    <!-- Descripción -->
+    <div class="field">
+      <label for="description" class="field__label">Descripción</label>
+      <textarea
+        id="description"
+        class="field__input field__textarea"
+        formControlName="description"
+        rows="3"
+        placeholder="Detalles opcionales..."
+      ></textarea>
+    </div>
+
+    <!-- Fila: Prioridad + Fecha -->
+    <div class="field-row">
+      <div class="field">
+        <label for="priority" class="field__label">Prioridad</label>
+        <select
+          id="priority"
+          class="field__input"
+          formControlName="priority"
+        >
+          @for (p of priorities; track p) {
+            <option [value]="p">
+              @switch (p) {
+                @case ('HIGH') { Alta }
+                @case ('MEDIUM') { Media }
+                @case ('LOW') { Baja }
+              }
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="dueDate" class="field__label">Fecha de vencimiento</label>
+        <input
+          id="dueDate"
+          type="date"
+          class="field__input"
+          formControlName="dueDate"
+        />
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="field">
+      <label for="tagNames" class="field__label">Etiquetas</label>
+      <input
+        id="tagNames"
+        type="text"
+        class="field__input"
+        formControlName="tagNames"
+        placeholder="Separadas por coma. Ej: trabajo, urgente, semanal"
+        autocomplete="off"
+      />
+      <p class="field__hint">
+        Separa las etiquetas con comas. Se guardan automáticamente.
+      </p>
+    </div>
+
+    <!-- Completada (solo en modo editar) -->
+    @if (isEditMode()) {
+      <div class="field field--checkbox">
+        <label class="field__checkbox-label">
+          <input type="checkbox" formControlName="completed" />
+          Marcar como completada
+        </label>
+      </div>
+    }
+
+    <!-- Acciones -->
+    <div class="form-actions">
+      <a routerLink="/tasks" class="btn btn--ghost">Cancelar</a>
+      <button type="submit" class="btn btn--primary" [disabled]="saving()">
+        @if (saving()) {
+          Guardando...
+        } @else {
+          {{ isEditMode() ? 'Guardar cambios' : 'Crear tarea' }}
+        }
+      </button>
+    </div>
+  </form>
+}
