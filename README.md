@@ -1,25 +1,27 @@
 # To-Do List Full Stack
 
-Aplicación de gestión de tareas con backend en Go, frontend en Angular 21 y base de datos PostgreSQL.
+Aplicación full-stack de gestión de tareas con **backend en Go**, **frontend en Angular 21** y **base de datos PostgreSQL**.
 
-Proyecto desarrollado como prueba técnica full-stack. Incluye CRUD completo, idempotencia de creación, soft delete, auditoría automática, etiquetas, prioridades, fechas de vencimiento y filtros de búsqueda.
+Desarrollada como prueba técnica full-stack. Incluye CRUD completo, idempotencia de creación, soft delete, auditoría automática por trigger, etiquetas, prioridades, fechas de vencimiento, filtros avanzados y visualización de historial de cambios.
 
 ---
 
 ## 📋 Tabla de contenidos
 
 - [Stack tecnológico](#-stack-tecnológico)
+- [Características](#-características)
 - [Arquitectura](#-arquitectura)
 - [Estructura del proyecto](#-estructura-del-proyecto)
 - [Requisitos previos](#-requisitos-previos)
-- [Instalación](#-instalación)
+- [Instalación y arranque](#-instalación-y-arranque)
 - [Variables de entorno](#-variables-de-entorno)
 - [API REST](#-api-rest)
 - [Base de datos](#-base-de-datos)
 - [Funcionalidades adicionales](#-funcionalidades-adicionales)
 - [Decisiones de diseño](#-decisiones-de-diseño)
 - [Tests](#-tests)
-- [Commits](#-commits)
+- [Build de producción](#-build-de-producción)
+- [Flujo de trabajo con Git](#-flujo-de-trabajo-con-git)
 
 ---
 
@@ -27,39 +29,90 @@ Proyecto desarrollado como prueba técnica full-stack. Incluye CRUD completo, id
 
 | Capa | Tecnología | Versión |
 | :--- | :--- | :--- |
-| Frontend | Angular | 21 |
-| Backend | Go | 1.25 |
-| Base de datos | PostgreSQL | 13+ |
-| Router HTTP | Chi | v5 |
-| Driver PostgreSQL | pgx | v5 |
-| Gestión de configuración | godotenv | v1 |
+| **Frontend** | Angular | 21 (standalone + signals + zoneless) |
+| **Backend** | Go | 1.25 |
+| **Base de datos** | PostgreSQL | 13+ |
+| **Router HTTP** | Chi | v5 |
+| **Driver PostgreSQL** | pgx | v5 |
+| **Gestión de configuración** | godotenv | v1 |
+| **Estilos** | SCSS con design tokens | — |
+
+---
+
+## ✨ Características
+
+### Funcionales (core)
+
+- ✅ **CRUD completo** de tareas (crear, listar, obtener, actualizar, eliminar)
+- ✅ **Filtros avanzados**: búsqueda por texto, prioridad, rango de fechas y etiquetas
+- ✅ **Estados visuales**: loading, vacío, error, listado
+- ✅ **Responsive**: adaptable a móvil, tablet y escritorio
+- ✅ **Accesibilidad**: focus rings, ARIA labels, prefers-reduced-motion
+
+### Valor agregado
+
+**Feature 1: Gestión avanzada de tareas**
+
+- **Etiquetas (tags)**: relación muchos-a-muchos, reutilizables entre tareas.
+- **Fechas de vencimiento y filtros**: cada tarea puede tener `due_date`; el listado soporta filtros por rango de fechas, prioridad, etiquetas y búsqueda textual con debounce.
+- **Prioridad**: enum nativo de PostgreSQL (`LOW`, `MEDIUM`, `HIGH`) con ordenamiento automático.
+
+**Feature 2: Integridad y trazabilidad de datos**
+
+- **Soft delete**: las tareas eliminadas se marcan con `deleted_at` y se pueden restaurar.
+- **Audit log**: cada cambio sobre una tarea queda registrado automáticamente por un **trigger de PostgreSQL**, visible desde la UI con línea de tiempo y diff de campos.
+
+**Bonus: Idempotencia de creación**
+
+- El endpoint `POST /tasks/` es idempotente mediante la cabecera `Idempotency-Key`.
+- Reintentos por fallos de red no crean duplicados.
 
 ---
 
 ## 🏗 Arquitectura
 
-El backend sigue una **arquitectura en capas** inspirada en los principios de Clean Architecture y arquitectura hexagonal:
+### Backend (Go)
+
+Arquitectura en capas inspirada en Clean Architecture:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Cliente (Angular)                       │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ HTTP / JSON
-┌──────────────────────────▼──────────────────────────────────┐
-│  Handler    → traduce HTTP ↔ dominio                        │
-│  Service    → reglas de negocio                             │
-│  Repository → acceso a datos (único lugar con SQL)          │
-│  Domain     → entidades y errores de negocio                │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ pgx
-┌──────────────────────────▼──────────────────────────────────┐
-│                     PostgreSQL                              │
-│  - tasks             - tags           - task_tags           │
-│  - task_audit_log    - idempotency_keys                     │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  Handler    → traduce HTTP ↔ dominio                    │
+│  Service    → reglas de negocio                         │
+│  Repository → acceso a datos (único lugar con SQL)      │
+│  Domain     → entidades y errores de negocio            │
+└─────────────────────────┬───────────────────────────────┘
+                          │ pgx
+┌─────────────────────────▼───────────────────────────────┐
+│                     PostgreSQL                          │
+│  - tasks          - tags          - task_tags           │
+│  - task_audit_log - idempotency_keys                    │
+└─────────────────────────────────────────────────────────┘
 ```
 
-**Principio clave**: cada capa solo conoce a la inmediatamente inferior. El dominio no sabe que existe HTTP ni SQL. El repositorio es el único lugar donde hay sentencias SQL.
+**Principio clave**: cada capa solo conoce a la inmediatamente inferior. El dominio no sabe que existe HTTP ni SQL. El repositorio es el único lugar con sentencias SQL.
+
+### Frontend (Angular 21)
+
+Arquitectura reactiva moderna con Signals:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Components (TaskList, TaskForm, TaskHistory, TaskCard) │
+│      ↓ lee signals           ↑ llama métodos             │
+│  TaskStore (estado reactivo)                            │
+│      ↓ llama métodos                                     │
+│  TaskService (HTTP puro)                                │
+│      ↓                                                   │
+│  Backend API                                             │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Pilares**:
+- **Standalone components**: sin `NgModules`, cada componente importa lo que usa.
+- **Signals**: estado reactivo nativo, sin RxJS donde no es necesario.
+- **Zoneless change detection**: sin `zone.js`, detección de cambios por signals.
+- **Control flow moderno**: `@if`, `@for`, `@switch` en lugar de `*ngIf`, `*ngFor`.
 
 ---
 
@@ -68,23 +121,61 @@ El backend sigue una **arquitectura en capas** inspirada en los principios de Cl
 ```
 todo-list/
 ├── backend/
-│   ├── cmd/api/              # Punto de entrada
+│   ├── cmd/api/                    # Punto de entrada
 │   ├── internal/
-│   │   ├── config/           # Carga de variables de entorno
-│   │   ├── database/         # Pool de conexiones a PostgreSQL
-│   │   ├── domain/           # Entidades y errores de negocio
-│   │   ├── handler/          # Endpoints HTTP
-│   │   ├── repository/       # Acceso a datos (SQL)
-│   │   ├── router/           # Configuración de rutas y middleware
-│   │   ├── scheduler/        # Worker de limpieza en background
-│   │   └── service/          # Lógica de negocio
+│   │   ├── config/                 # Carga de variables de entorno
+│   │   ├── database/               # Pool de conexiones a PostgreSQL
+│   │   ├── domain/                 # Entidades y errores de negocio
+│   │   │   ├── audit.go
+│   │   │   ├── errors.go
+│   │   │   ├── idempotency.go
+│   │   │   ├── repository.go       # Interfaces de repositorio
+│   │   │   └── task.go
+│   │   ├── handler/                # Endpoints HTTP
+│   │   │   ├── cors.go
+│   │   │   ├── middleware.go
+│   │   │   ├── parsing.go
+│   │   │   ├── response.go
+│   │   │   └── task_handler.go
+│   │   ├── repository/             # Acceso a datos (SQL)
+│   │   │   ├── audit_repository.go
+│   │   │   ├── idempotency_repository.go
+│   │   │   └── task_repository.go
+│   │   ├── router/                 # Configuración de rutas
+│   │   ├── scheduler/              # Worker de limpieza
+│   │   └── service/                # Lógica de negocio
 │   ├── .env.example
 │   └── go.mod
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── core/
+│   │   │   │   ├── models/         # Tipos TypeScript del dominio
+│   │   │   │   ├── services/       # TaskService (HTTP)
+│   │   │   │   ├── store/          # TaskStore (signals)
+│   │   │   │   └── utils/          # Helpers (format, uuid)
+│   │   │   ├── features/
+│   │   │   │   ├── task-form/      # Crear/editar
+│   │   │   │   ├── task-history/   # Historial de auditoría
+│   │   │   │   └── task-list/      # Listado con filtros
+│   │   │   ├── shared/layout/      # Header y shell
+│   │   │   ├── app.config.ts       # Providers globales
+│   │   │   ├── app.routes.ts       # Rutas con lazy loading
+│   │   │   └── app.ts              # Componente raíz
+│   │   ├── styles/
+│   │   │   ├── _variables.scss     # Design tokens
+│   │   │   ├── _mixins.scss        # Mixins reutilizables
+│   │   │   └── _buttons.scss       # Estilos de botones
+│   │   └── styles.scss             # Estilos globales
+│   ├── angular.json
+│   ├── proxy.conf.json
+│   └── package.json
 ├── database/
-│   └── 01_schema.sql         # Esquema completo de la BD
+│   └── 01_schema.sql               # Esquema completo
 ├── docs/
-│   └── diagramas.md          # Diagrama entidad-relación
-└── frontend/                 # Angular 21 (Fase 4)
+│   ├── decisiones.md               # 20 ADRs documentados
+│   └── diagramas.md                # Entidad-relación
+└── README.md
 ```
 
 ---
@@ -93,13 +184,13 @@ todo-list/
 
 - **Go 1.25** o superior
 - **PostgreSQL 13** o superior
-- **Node.js 22 LTS** o superior (para el frontend)
+- **Node.js 22 LTS** o superior
 - **Angular CLI 21** (`npm install -g @angular/cli@21`)
 - **Git**
 
 ---
 
-## 🚀 Instalación
+## 🚀 Instalación y arranque
 
 ### 1. Clonar el repositorio
 
@@ -115,9 +206,10 @@ psql -U postgres -c "CREATE DATABASE todo_db;"
 psql -U postgres -d todo_db -f database/01_schema.sql
 ```
 
-Verifica que se hayan creado las 5 tablas:
+Verifica que se crearon las 5 tablas:
 
 ```sql
+\c todo_db
 \dt
 ```
 
@@ -130,25 +222,12 @@ cd backend
 cp .env.example .env
 ```
 
-Edita `.env` con tus credenciales de PostgreSQL:
-
-```env
-SERVER_PORT=8080
-APP_ENV=development
-ALLOWED_ORIGINS=http://localhost:4200
-CLEANUP_INTERVAL_MS=3600000
-
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=tu_password_real
-DB_NAME=todo_db
-DB_SSLMODE=disable
-```
+Edita `.env` con tus credenciales de PostgreSQL (ver sección [Variables de entorno](#-variables-de-entorno)).
 
 ### 4. Arrancar el backend
 
 ```bash
+# Desde backend/
 go mod download
 go run ./cmd/api
 ```
@@ -163,15 +242,34 @@ conectando a PostgreSQL...
 🌐 servidor HTTP escuchando en :8080
 ```
 
-El backend está listo en `http://localhost:8080`.
+### 5. Arrancar el frontend
 
-### 5. Frontend (Fase 4)
+En **otra terminal**:
 
-Pendiente. Se documentará cuando se implemente.
+```bash
+cd frontend
+npm install
+ng serve
+```
+
+Salida esperada:
+
+```
+Application bundle generation complete.
+➜ Local: http://localhost:4200/
+```
+
+### 6. Abrir la app
+
+Ve a [http://localhost:4200](http://localhost:4200) en tu navegador.
+
+**Detalle**: el frontend usa un proxy de desarrollo (`proxy.conf.json`) que redirige `/api/*` a `http://localhost:8080`. No hay problemas de CORS.
 
 ---
 
 ## 🔐 Variables de entorno
+
+### Backend (`backend/.env`)
 
 | Variable | Descripción | Default |
 | :--- | :--- | :--- |
@@ -186,7 +284,7 @@ Pendiente. Se documentará cuando se implemente.
 | `DB_NAME` | Nombre de la base de datos | **requerido** |
 | `DB_SSLMODE` | Modo SSL de PostgreSQL | `disable` |
 
-Las variables de sistema **siempre tienen prioridad** sobre `.env`. Esto permite sobrescribir configuraciones en producción sin tocar archivos.
+Las variables de sistema **tienen prioridad** sobre el `.env`. Esto permite sobrescribir configuración en producción sin tocar archivos.
 
 ---
 
@@ -199,13 +297,14 @@ Base URL: `http://localhost:8080`
 | Método | Ruta | Descripción |
 | :--- | :--- | :--- |
 | `GET` | `/health` | Health check |
-| `POST` | `/tasks/` | Crear tarea |
+| `POST` | `/tasks/` | Crear tarea (idempotente con `Idempotency-Key`) |
 | `GET` | `/tasks/` | Listar tareas con filtros |
 | `GET` | `/tasks/{id}` | Obtener tarea por ID |
-| `PUT` | `/tasks/{id}` | Actualizar tarea |
-| `DELETE` | `/tasks/{id}` | Soft delete de tarea |
+| `GET` | `/tasks/{id}/audit` | Historial de cambios de una tarea |
+| `PUT` | `/tasks/{id}` | Actualizar tarea (parcial) |
+| `DELETE` | `/tasks/{id}` | Soft delete |
 | `POST` | `/tasks/{id}/restore` | Restaurar tarea eliminada |
-| `GET` | `/tags` | Listar catálogo de etiquetas |
+| `GET` | `/tags` | Catálogo de etiquetas |
 
 ### Filtros soportados en `GET /tasks/`
 
@@ -218,23 +317,6 @@ Base URL: `http://localhost:8080`
 | `due_after` | RFC3339 | `?due_after=2026-01-01T00:00:00Z` |
 | `search` | string | `?search=ejercicio` |
 | `tags` | string[] | `?tags=trabajo&tags=urgente` |
-
-### Idempotencia
-
-`POST /tasks/` soporta la cabecera `Idempotency-Key`:
-
-```bash
-curl -X POST http://localhost:8080/tasks/ \
-  -H "Content-Type: application/json" \
-  -H "Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000" \
-  -d '{"title":"Hacer ejercicio","priority":"HIGH"}'
-```
-
-- Si es la primera vez que se envía esa clave, se crea la tarea.
-- Si se reenvía la misma clave con el mismo body, se devuelve la respuesta cacheada (misma tarea, mismo `id`) y la cabecera `Idempotency-Replayed: true`.
-- Si se reenvía la misma clave con un body distinto, se devuelve `409 Conflict`.
-
-Las claves se guardan durante **24 horas** y se limpian automáticamente con un worker en background.
 
 ### Ejemplo de respuesta
 
@@ -282,7 +364,7 @@ Todos los errores siguen el mismo formato:
 
 ### Esquema
 
-El esquema completo está en `database/01_schema.sql`. Cinco tablas:
+Cinco tablas, definidas en `database/01_schema.sql`:
 
 - **`tasks`**: tareas con prioridad, fecha de vencimiento, completado y `deleted_at` (soft delete).
 - **`tags`**: catálogo global de etiquetas.
@@ -292,7 +374,7 @@ El esquema completo está en `database/01_schema.sql`. Cinco tablas:
 
 ### Trigger de auditoría
 
-Cada operación sobre `tasks` (INSERT, UPDATE, SOFT_DELETE, RESTORE, DELETE) se registra automáticamente en `task_audit_log`. La aplicación **no participa** en este registro: es la base de datos la que garantiza la trazabilidad completa.
+Cada operación sobre `tasks` (`INSERT`, `UPDATE`, `SOFT_DELETE`, `RESTORE`, `DELETE`) se registra automáticamente en `task_audit_log`. La aplicación **no participa** en este registro: es la base de datos la que garantiza la trazabilidad.
 
 ### Índices parciales
 
@@ -300,78 +382,41 @@ Los índices sobre `tasks` son parciales (`WHERE deleted_at IS NULL`). Esto los 
 
 ---
 
-## ✨ Funcionalidades adicionales
-
-Además del CRUD básico, el proyecto incluye:
-
-### Feature 1: Gestión avanzada de tareas
-
-- **Etiquetas (tags)**: relación muchos-a-muchos para categorizar tareas. Reutilizables entre tareas.
-- **Fechas de vencimiento y filtros**: cada tarea puede tener `due_date`, y el listado soporta filtros por rango de fechas, estado, prioridad, etiquetas y búsqueda textual.
-- **Prioridad**: enum nativo de PostgreSQL (`LOW`, `MEDIUM`, `HIGH`). El listado ordena por prioridad y luego por fecha de vencimiento.
-
-### Feature 2: Integridad y trazabilidad de datos
-
-- **Soft delete**: las tareas eliminadas se marcan con `deleted_at` en lugar de borrarse físicamente. Se pueden restaurar.
-- **Audit log**: cada cambio sobre una tarea queda registrado automáticamente por un trigger de PostgreSQL, con snapshot antes/después en JSONB.
-
-### Bonus: Idempotencia de creación
-
-El endpoint `POST /tasks/` es idempotente mediante la cabecera `Idempotency-Key`. Reintentos por fallos de red no crean duplicados.
-
----
-
 ## 🎯 Decisiones de diseño
 
-Las decisiones más relevantes están documentadas en [`docs/decisiones.md`](docs/decisiones.md). Algunas destacadas:
+Las **20 decisiones técnicas** más relevantes están documentadas en [`docs/decisiones.md`](docs/decisiones.md) con contexto, alternativas consideradas y trade-offs. Algunas destacadas:
 
-- **UUID en lugar de BIGSERIAL** para IDs: evita enumeración, funciona en sistemas distribuidos.
+- **UUID en lugar de BIGSERIAL**: evita enumeración, funciona en sistemas distribuidos.
 - **TIMESTAMPTZ en lugar de TIMESTAMP**: manejo correcto de zonas horarias.
 - **ENUM nativo de PostgreSQL** para prioridad: validación en el motor.
 - **Soft delete con índice parcial**: rendimiento óptimo en consultas frecuentes.
-- **Trigger en lugar de código de aplicación** para auditoría: garantía absoluta, imposible de saltar.
-- **Idempotencia solo en POST**: los demás métodos HTTP ya son idempotentes por especificación.
+- **Trigger en lugar de código de aplicación** para auditoría: garantía absoluta.
+- **Idempotencia solo en POST**: los demás métodos HTTP ya son idempotentes.
+- **Punteros en `UpdateTaskInput`**: semántica correcta de PATCH (distinguir "no enviado" de "enviado con valor cero").
+- **Signals en lugar de NgRx**: simplicidad y reactividad nativa en Angular 21.
 
 ---
 
 ## 🧪 Tests
 
+### Backend
+
 ```bash
 cd backend
-go test ./...
+go test ./...                    # todos los tests
+go test -cover ./...             # con cobertura
+go test -race ./...              # con detector de carreras (requiere cgo)
+go test -v ./internal/domain/    # verbose, un paquete
 ```
 
-Para ejecutar con race detector:
+**Cobertura actual**:
+- `internal/domain`: ~100% (entidades y validaciones)
+- `internal/service`: ~90% (lógica de negocio con mocks)
+- `internal/handler`: sin tests unitarios (cubiertos por integración manual)
 
-```bash
-go test -race ./...
-```
+### Frontend
 
-Para cobertura:
-
-```bash
-go test -cover ./...
-```
-
----
-
-## 📝 Commits
-
-El proyecto usa [Conventional Commits](https://www.conventionalcommits.org/) en español:
-
-```
-<tipo>(<alcance>): <descripción en imperativo>
-```
-
-Tipos usados: `feat`, `fix`, `refactor`, `docs`, `chore`, `style`, `test`.
-
-Alcances: `backend`, `frontend`, `db`, `docs`.
-
-Ejemplo:
-
-```
-feat(backend): agregar endpoint de listado con filtros dinámicos
-```
+No hay tests automáticos en la versión actual. La verificación se hizo manualmente con una checklist funcional.
 
 ---
 
@@ -381,8 +426,92 @@ feat(backend): agregar endpoint de listado con filtros dinámicos
 
 ```bash
 cd frontend
-npm ci                                    # instala dependencias exactas del lock
-ng build --configuration production       # genera dist/frontend/browser/
+npm ci
+ng build --configuration production
+```
+
+El resultado queda en `dist/frontend/browser/` con HTML, CSS y JS minificados, hasheados y listos para servir.
+
+**Servir localmente para verificar**:
+
+```bash
+npx http-server dist/frontend/browser -p 4300
+```
+
+### Backend
+
+```bash
+cd backend
+go build -ldflags="-s -w" -o bin/api.exe ./cmd/api
+```
+
+El binario `bin/api.exe` es autocontenido: no requiere Go instalado en la máquina de destino.
+
+### Despliegue con Nginx
+
+En producción, Nginx sirve los archivos estáticos del frontend y actúa como reverse proxy para `/api/*` hacia el backend Go.
+
+```nginx
+server {
+    listen 80;
+    server_name midominio.com;
+
+    root /var/www/todo-list/frontend/dist/frontend/browser;
+    index index.html;
+
+    # SPA fallback: redirige todas las rutas a index.html.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Reverse proxy al backend.
+    location /api/ {
+        proxy_pass http://localhost:8080/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+---
+
+## 🔄 Flujo de trabajo con Git
+
+El proyecto usa [Conventional Commits](https://www.conventionalcommits.org/) **en español**.
+
+### Formato
+
+```
+<tipo>(<alcance>): <descripción en imperativo>
+```
+
+### Tipos usados
+
+| Tipo | Cuándo se usa |
+| :--- | :--- |
+| `feat` | Nueva funcionalidad |
+| `fix` | Corrección de bug |
+| `refactor` | Cambio sin alterar comportamiento |
+| `docs` | Solo documentación |
+| `chore` | Mantenimiento (dependencias, config) |
+| `style` | Formato, espacios |
+| `test` | Tests |
+
+### Alcances
+
+`backend`, `frontend`, `db`, `docs`.
+
+### Ejemplos
+
+```
+feat(backend): agregar endpoint de auditoría de tareas
+fix(frontend): corregir indicador de filtros activos
+refactor(frontend): centralizar sistema de diseño con variables SCSS
+docs: agregar README principal del proyecto
+chore(db): agregar migración para índice de búsqueda
+```
+
+---
 
 ## 📄 Licencia
 
