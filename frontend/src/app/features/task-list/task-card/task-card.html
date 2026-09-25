@@ -53,12 +53,28 @@
         <button
           type="button"
           class="btn btn--ghost"
+          (click)="onViewHistory()"
+          title="Ver historial"
+        >
+          Historial
+        </button>
+        <button
+          type="button"
+          class="btn btn--ghost"
           (click)="onRestore()"
           title="Restaurar"
         >
           Restaurar
         </button>
       } @else {
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="onViewHistory()"
+          title="Ver historial"
+        >
+          Historial
+        </button>
         <button
           type="button"
           class="btn btn--ghost"

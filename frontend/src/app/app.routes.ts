@@ -35,6 +35,12 @@ export const routes: Routes = [
       import('./features/task-form/task-form').then((m) => m.TaskForm),
     title: 'Editar tarea',
   },
+    {
+    path: 'tasks/:id/history',
+    loadComponent: () =>
+      import('./features/task-history/task-history').then((m) => m.TaskHistory),
+    title: 'Historial de la tarea',
+  },
   {
     path: '**',
     redirectTo: 'tasks',

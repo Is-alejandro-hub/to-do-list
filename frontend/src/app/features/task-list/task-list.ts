@@ -212,6 +212,9 @@ export class TaskList implements OnInit {
   protected onNewTask(): void {
     this.router.navigate(['/tasks', 'new']);
   }
+  protected onViewHistory(task: Task): void {
+    this.router.navigate(['/tasks', task.id, 'history']);
+  }
 
   // ─── Helpers de fecha ──────────────────────────────────────────────
 

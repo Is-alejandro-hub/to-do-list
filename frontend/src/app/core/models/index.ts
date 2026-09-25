@@ -12,3 +12,4 @@ export type {
   ValidationErrorDetail,
 } from './api-error.model';
 export { isApiError } from './api-error.model';
+export type { AuditAction, AuditEntry, AuditSnapshot } from './audit.model';

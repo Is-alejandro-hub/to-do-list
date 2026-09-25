@@ -2,7 +2,6 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
 import type {
   CreateTaskInput,
   UpdateTaskInput,
@@ -11,6 +10,7 @@ import type {
   Tag,
   ApiError,
   ValidationErrorDetail,
+  AuditEntry,
 } from '@core/models';
 import { isApiError } from '@core/models';
 import { generateUUID } from '@core/utils/uuid';
@@ -77,6 +77,14 @@ export class TaskService {
   listTags(): Observable<Tag[]> {
     return this.http
       .get<Tag[]>(this.tagsUrl)
+      .pipe(catchError(this.handleError));
+  }
+    /**
+   * Devuelve el historial de cambios de una tarea.
+   */
+  getAudit(taskId: string): Observable<AuditEntry[]> {
+    return this.http
+      .get<AuditEntry[]>(`${this.baseUrl}/${taskId}/audit`)
       .pipe(catchError(this.handleError));
   }
 

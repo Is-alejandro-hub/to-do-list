@@ -1,0 +1,76 @@
+<header class="page-header">
+  <div>
+    <h1>Historial de la tarea</h1>
+    <p class="page-header__subtitle">
+      Todos los cambios registrados automáticamente por la base de datos.
+    </p>
+  </div>
+  <a routerLink="/tasks" class="btn btn--ghost">
+    ← Volver al listado
+  </a>
+</header>
+
+@if (loading()) {
+  <div class="state">
+    <div class="spinner"></div>
+    <p>Cargando historial...</p>
+  </div>
+} @else if (error(); as err) {
+  <div class="alert alert--error" role="alert">
+    {{ err }}
+  </div>
+} @else if (entries().length === 0) {
+  <div class="state">
+    <p class="state__icon">📭</p>
+    <h2>Sin historial</h2>
+    <p>Esta tarea no tiene cambios registrados.</p>
+  </div>
+} @else {
+  <ol class="timeline">
+    @for (entry of entries(); track entry.id) {
+      <li class="timeline__item">
+        <div class="timeline__marker">
+          <span [class]="auditActionClass(entry.action)">
+            {{ auditActionLabel(entry.action) }}
+          </span>
+        </div>
+
+        <div class="timeline__body">
+          <p class="timeline__meta">
+            <span class="timeline__date">{{ formatDateTime(entry.changed_at) }}</span>
+            <span class="timeline__by">por {{ entry.changed_by }}</span>
+          </p>
+
+          @if (entry.action === 'UPDATE') {
+            @if (changedFields(entry); as fields) {
+              @if (fields.length > 0) {
+                <ul class="changes">
+                  @for (field of fields; track field) {
+                    <li class="changes__item">
+                      <strong class="changes__field">{{ field }}</strong>:
+                      <span class="changes__before">
+                        {{ formatValue(entry.old_data?.[field]) }}
+                      </span>
+                      <span class="changes__arrow">→</span>
+                      <span class="changes__after">
+                        {{ formatValue(entry.new_data?.[field]) }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="timeline__note">Sin cambios visibles.</p>
+              }
+            }
+          }
+
+          @if (entry.action === 'INSERT' && entry.new_data?.['title']) {
+            <p class="timeline__note">
+              Título inicial: <em>{{ entry.new_data?.['title'] }}</em>
+            </p>
+          }
+        </div>
+      </li>
+    }
+  </ol>
+}

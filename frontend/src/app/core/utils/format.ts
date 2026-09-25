@@ -57,3 +57,24 @@ export function isPast(iso: string | null): boolean {
   if (!iso) return false;
   return new Date(iso).getTime() < Date.now();
 }
+import type { AuditAction } from '@core/models';
+
+/**
+ * Etiqueta en español para cada acción de auditoría.
+ */
+export function auditActionLabel(action: AuditAction): string {
+  switch (action) {
+    case 'INSERT':      return 'Creada';
+    case 'UPDATE':      return 'Actualizada';
+    case 'SOFT_DELETE': return 'Eliminada';
+    case 'RESTORE':     return 'Restaurada';
+    case 'DELETE':      return 'Eliminada permanentemente';
+  }
+}
+
+/**
+ * Clase CSS para el badge según la acción.
+ */
+export function auditActionClass(action: AuditAction): string {
+  return `audit-badge audit-badge--${action.toLowerCase().replace('_', '-')}`;
+}

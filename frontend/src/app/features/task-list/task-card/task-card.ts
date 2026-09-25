@@ -29,6 +29,7 @@ export class TaskCard {
   readonly edit = output<Task>();
   readonly remove = output<Task>();
   readonly restore = output<Task>();
+  readonly viewHistory = output<Task>();
 
   // Helpers expuestos al template.
   protected readonly priorityLabel = priorityLabel;
@@ -51,5 +52,8 @@ export class TaskCard {
 
   protected onRestore(): void {
     this.restore.emit(this.task());
+  }
+  protected onViewHistory(): void {
+    this.viewHistory.emit(this.task());
   }
 }
