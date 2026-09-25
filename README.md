@@ -375,6 +375,15 @@ feat(backend): agregar endpoint de listado con filtros dinámicos
 
 ---
 
+## 📦 Build de producción
+
+### Frontend
+
+```bash
+cd frontend
+npm ci                                    # instala dependencias exactas del lock
+ng build --configuration production       # genera dist/frontend/browser/
+
 ## 📄 Licencia
 
 Proyecto desarrollado como prueba técnica. Uso libre.
