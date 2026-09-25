@@ -37,6 +37,10 @@ type TaskRepository interface {
 
 	// ListTags devuelve el catálogo completo de tags ordenado por nombre.
 	ListTags(ctx context.Context) ([]Tag, error)
+
+	// ListAuditByTaskID devuelve el historial de cambios de una tarea,
+	// ordenado del más reciente al más antiguo.
+	ListAuditByTaskID(ctx context.Context, taskID uuid.UUID) ([]AuditEntry, error)
 }
 
 // IdempotencyRepository gestiona las claves de idempotencia del POST.

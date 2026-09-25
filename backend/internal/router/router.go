@@ -44,9 +44,11 @@ func New(cfg *config.Config, taskHandler *handler.TaskHandler) http.Handler {
 		r.Post("/", taskHandler.Create)
 		r.Get("/", taskHandler.List)
 		r.Get("/{id}", taskHandler.GetByID)
+		r.Get("/{id}/audit", taskHandler.ListAudit)
 		r.Put("/{id}", taskHandler.Update)
 		r.Delete("/{id}", taskHandler.Delete)
 		r.Post("/{id}/restore", taskHandler.Restore)
+
 	})
 
 	r.Get("/tags", taskHandler.ListTags)

@@ -18,6 +18,7 @@ type TaskService interface {
 	SoftDelete(ctx context.Context, id uuid.UUID) error
 	Restore(ctx context.Context, id uuid.UUID) error
 	ListTags(ctx context.Context) ([]domain.Tag, error)
+	ListAudit(ctx context.Context, taskID uuid.UUID) ([]domain.AuditEntry, error)
 }
 
 // IdempotencyService gestiona el ciclo de vida de las claves de idempotencia.

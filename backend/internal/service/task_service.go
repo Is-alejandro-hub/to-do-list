@@ -122,3 +122,13 @@ func tagsFromNames(names []string) []domain.Tag {
 	}
 	return result
 }
+func (s *taskService) ListAudit(
+	ctx context.Context, taskID uuid.UUID,
+) ([]domain.AuditEntry, error) {
+	// Verificamos que la tarea existe (incluyendo eliminadas) antes de
+	// devolver la auditoría. Si no existe, 404.
+	if _, err := s.repo.GetByID(ctx, taskID, true); err != nil {
+		return nil, err
+	}
+	return s.repo.ListAuditByTaskID(ctx, taskID)
+}

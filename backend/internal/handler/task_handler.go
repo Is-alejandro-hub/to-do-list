@@ -212,3 +212,19 @@ func (h *TaskHandler) ListTags(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, tags)
 }
+
+// ListAudit maneja GET /tasks/{id}/audit.
+func (h *TaskHandler) ListAudit(w http.ResponseWriter, r *http.Request) {
+	id, err := parseUUIDParam(r, "id")
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	entries, err := h.taskService.ListAudit(r.Context(), id)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, entries)
+}
