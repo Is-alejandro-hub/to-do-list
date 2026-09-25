@@ -1,0 +1,33 @@
+<div class="app-shell">
+  <header class="app-header">
+    <div class="app-header__content">
+      <a routerLink="/tasks" class="app-header__brand">
+        <span class="app-header__logo" aria-hidden="true">✓</span>
+        <span class="app-header__title">To-Do List</span>
+      </a>
+
+      <nav class="app-header__nav" aria-label="Navegación principal">
+        <a
+          routerLink="/tasks"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="app-header__link"
+        >
+          Listado
+        </a>
+        <a
+          routerLink="/tasks/new"
+          routerLinkActive="is-active"
+          class="app-header__link app-header__link--primary"
+        >
+          <span aria-hidden="true">+</span>
+          <span class="app-header__link-text">Nueva tarea</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <router-outlet />
+  </main>
+</div>

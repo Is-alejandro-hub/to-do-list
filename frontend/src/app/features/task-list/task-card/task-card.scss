@@ -1,183 +1,225 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
 .task-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  @include card;
+  padding: $space-4 $space-5;
+  transition: box-shadow $transition-normal, border-color $transition-normal,
+    transform $transition-fast;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    border-color: #cbd5e0;
+    box-shadow: $shadow-md;
+    border-color: $color-border-strong;
   }
 
-  &--completed {
-    opacity: 0.7;
-
-    .task-card__title {
-      text-decoration: line-through;
-      color: #718096;
-    }
+  @include mobile {
+    padding: $space-3 $space-4;
   }
+}
 
-  &--deleted {
-    background: #fafafa;
-    border-style: dashed;
+.task-card--completed {
+  opacity: 0.7;
+
+  .task-card__title {
+    text-decoration: line-through;
+    color: $color-text-muted;
   }
+}
+
+.task-card--deleted {
+  background: $color-gray-50;
+  border-style: dashed;
 }
 
 .task-card__row {
   display: flex;
-  gap: 1rem;
+  gap: $space-4;
   align-items: flex-start;
+
+  @include mobile {
+    gap: $space-3;
+    flex-wrap: wrap;
+  }
 }
 
 .task-card__checkbox {
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
-  border: 2px solid #cbd5e0;
+  border-radius: $radius-full;
+  border: 2px solid $color-border-strong;
   background: white;
   color: white;
-  font-size: 14px;
+  font-size: $font-xs;
   line-height: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background $transition-normal, border-color $transition-normal,
+    transform $transition-fast;
+  padding: 0;
+  cursor: pointer;
 
   &:hover:not(:disabled) {
-    border-color: #3182ce;
+    border-color: $color-primary;
+    transform: scale(1.05);
   }
 
   &.is-checked {
-    background: #3182ce;
-    border-color: #3182ce;
+    background: $color-primary;
+    border-color: $color-primary;
   }
 
   &:disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
 }
 
 .task-card__content {
   flex: 1;
-  min-width: 0; // permite que el texto trunque si es largo
+  min-width: 0;
 }
 
 .task-card__title {
-  margin: 0 0 0.25rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1a202c;
+  margin: 0 0 $space-1;
+  font-size: $font-base;
+  font-weight: $weight-semibold;
+  color: $color-text;
   word-break: break-word;
+  line-height: $leading-tight;
 }
 
 .task-card__description {
-  margin: 0 0 0.5rem;
-  color: #4a5568;
-  font-size: 0.9rem;
+  margin: 0 0 $space-2;
+  color: $color-gray-600;
+  font-size: $font-sm;
   word-break: break-word;
+  line-height: $leading-normal;
 }
 
 .task-card__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: $space-2;
   align-items: center;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
+  margin-top: $space-2;
+  font-size: $font-xs;
 }
 
 .task-card__due {
-  color: #4a5568;
+  color: $color-gray-600;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+}
 
-  &--overdue {
-    color: #c53030;
-    font-weight: 600;
-  }
+.task-card__due--overdue {
+  color: $color-danger;
+  font-weight: $weight-semibold;
 }
 
 .task-card__tag {
-  background: #edf2f7;
-  color: #4a5568;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
+  background: $color-gray-100;
+  color: $color-gray-600;
+  padding: 0.15rem $space-2;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: $color-gray-200;
+  }
 }
 
 .task-card__deleted-notice {
-  margin: 0.5rem 0 0;
-  font-size: 0.8rem;
-  color: #a0aec0;
+  margin: $space-2 0 0;
+  font-size: $font-xs;
+  color: $color-text-subtle;
   font-style: italic;
 }
 
 .task-card__actions {
   flex-shrink: 0;
   display: flex;
-  gap: 0.5rem;
+  gap: $space-2;
   align-items: center;
+
+  @include mobile {
+    flex-basis: 100%;
+    justify-content: flex-end;
+    margin-top: $space-2;
+    padding-top: $space-2;
+    border-top: 1px solid $color-border;
+  }
 }
 
 // ─── Badges de prioridad ───────────────────────────────────────────────
 .badge {
   display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.75rem;
+  padding: 0.15rem $space-2;
+  border-radius: $radius-full;
+  font-weight: $weight-semibold;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-
-  &--high {
-    background: #fed7d7;
-    color: #822727;
-  }
-
-  &--medium {
-    background: #feebc8;
-    color: #7b341e;
-  }
-
-  &--low {
-    background: #c6f6d5;
-    color: #22543d;
-  }
+  letter-spacing: 0.04em;
 }
 
-// ─── Botones ───────────────────────────────────────────────────────────
+.badge--high {
+  background: $color-danger-border;
+  color: #822727;
+}
+
+.badge--medium {
+  background: #feebc8;
+  color: #7b341e;
+}
+
+.badge--low {
+  background: $color-success-border;
+  color: #22543d;
+}
+
+// ─── Botones internos ──────────────────────────────────────────────────
 .btn {
-  padding: 0.4rem 0.85rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding: $space-1 $space-3;
+  border-radius: $radius-md;
+  font-size: $font-xs;
+  font-weight: $weight-medium;
   border: 1px solid transparent;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background $transition-normal, color $transition-normal,
+    border-color $transition-normal;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
 
-  &--ghost {
-    background: transparent;
-    color: #4a5568;
-    border-color: #e2e8f0;
-
-    &:hover {
-      background: #edf2f7;
-      color: #1a202c;
-    }
+  &:focus-visible {
+    @include focus-ring;
   }
+}
 
-  &--danger {
-    background: transparent;
-    color: #c53030;
-    border-color: #fed7d7;
+.btn--ghost {
+  background: transparent;
+  color: $color-gray-600;
+  border-color: $color-border;
 
-    &:hover {
-      background: #fff5f5;
-      border-color: #fc8181;
-    }
+  &:hover {
+    background: $color-gray-100;
+    color: $color-text;
+  }
+}
+
+.btn--danger {
+  background: transparent;
+  color: $color-danger;
+  border-color: $color-danger-border;
+
+  &:hover {
+    background: $color-danger-light;
+    border-color: #fc8181;
   }
 }

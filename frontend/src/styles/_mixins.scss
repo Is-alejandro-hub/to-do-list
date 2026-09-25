@@ -1,0 +1,50 @@
+@use 'variables' as *;
+
+// ============================================================================
+// MIXINS REUTILIZABLES
+// ============================================================================
+
+/// Aplica los estilos de foco consistentes en toda la app.
+/// Uso: `&:focus-visible { @include focus-ring; }`
+@mixin focus-ring($color: $color-primary) {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba($color, 0.15);
+  border-color: $color;
+}
+
+/// Contenedor centrado con ancho máximo.
+@mixin container {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $space-6;
+}
+
+/// Trunca texto en una línea con puntos suspensivos.
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/// Media query: aplica estilos solo en móvil (menor a $bp-md).
+@mixin mobile {
+  @media (max-width: #{$bp-md - 1px}) {
+    @content;
+  }
+}
+
+/// Media query: aplica estilos solo en tablet+ (mayor o igual a $bp-md).
+@mixin tablet-up {
+  @media (min-width: $bp-md) {
+    @content;
+  }
+}
+
+/// Tarjeta base con borde y hover sutil.
+@mixin card {
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+}

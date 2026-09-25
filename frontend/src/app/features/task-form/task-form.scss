@@ -1,93 +1,120 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
 .page-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: $space-6;
 
   h1 {
-    margin: 0 0 0.25rem;
+    margin: 0 0 $space-1;
+    font-size: $font-2xl;
   }
+}
 
-  &__subtitle {
-    margin: 0;
-    color: #718096;
-    font-size: 0.9rem;
-  }
+.page-header__subtitle {
+  margin: 0;
+  color: $color-text-muted;
+  font-size: $font-sm;
 }
 
 .task-form {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.75rem;
+  @include card;
+  border-radius: $radius-xl;
+  padding: $space-8;
   max-width: 720px;
+
+  @include mobile {
+    padding: $space-5;
+  }
 }
 
 .field {
-  margin-bottom: 1.25rem;
+  margin-bottom: $space-5;
+}
 
-  &__label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #2d3748;
-    margin-bottom: 0.4rem;
+.field__label {
+  display: block;
+  font-weight: $weight-semibold;
+  font-size: $font-sm;
+  color: $color-gray-700;
+  margin-bottom: $space-2;
+}
+
+.field__required {
+  color: $color-danger;
+  margin-left: 2px;
+}
+
+.field__input {
+  width: 100%;
+  padding: $space-2 $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-base;
+  background: white;
+  color: $color-text;
+  outline: none;
+  transition: border-color $transition-normal, box-shadow $transition-normal;
+
+  &::placeholder {
+    color: $color-text-subtle;
   }
 
-  &__required {
-    color: #c53030;
+  &:focus {
+    @include focus-ring;
   }
+}
 
-  &__input {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    background: white;
-    color: #1a202c;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+.field__input--error {
+  border-color: #fc8181;
 
-    &:focus {
-      border-color: #3182ce;
-      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+  &:focus {
+    @include focus-ring($color-danger);
+  }
+}
+
+.field__textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: $leading-normal;
+}
+
+.field__error {
+  margin: $space-1 0 0;
+  color: $color-danger;
+  font-size: $font-xs;
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.field__hint {
+  margin: $space-1 0 0;
+  color: $color-text-subtle;
+  font-size: $font-xs;
+}
+
+.field--checkbox {
+  .field__checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: $font-base;
+    cursor: pointer;
+    user-select: none;
+    color: $color-gray-700;
+    padding: $space-2 $space-3;
+    border-radius: $radius-md;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: $color-gray-50;
     }
 
-    &--error {
-      border-color: #fc8181;
-
-      &:focus {
-        border-color: #e53e3e;
-        box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
-      }
-    }
-  }
-
-  &__textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  &__error {
-    margin: 0.35rem 0 0;
-    color: #c53030;
-    font-size: 0.8rem;
-  }
-
-  &__hint {
-    margin: 0.35rem 0 0;
-    color: #a0aec0;
-    font-size: 0.8rem;
-  }
-
-  &--checkbox {
-    .field__checkbox-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.95rem;
+    input[type='checkbox'] {
       cursor: pointer;
-      user-select: none;
-      color: #2d3748;
+      accent-color: $color-primary;
+      width: 18px;
+      height: 18px;
     }
   }
 }
@@ -95,97 +122,120 @@
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: $space-4;
 
-  @media (max-width: 600px) {
+  @include mobile {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #e2e8f0;
+  gap: $space-3;
+  margin-top: $space-6;
+  padding-top: $space-5;
+  border-top: 1px solid $color-border;
+
+  @include mobile {
+    flex-direction: column-reverse;
+
+    .btn {
+      width: 100%;
+    }
+  }
 }
 
+// ─── Botones ────────────────────────────────────────────────────────────
 .btn {
-  padding: 0.6rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: $space-3 $space-5;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: $weight-medium;
   border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background $transition-normal, color $transition-normal,
+    border-color $transition-normal, transform $transition-fast;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: $space-2;
 
-  &--primary {
-    background: #3182ce;
-    color: white;
-
-    &:hover:not(:disabled) {
-      background: #2b6cb0;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+  &:focus-visible {
+    @include focus-ring;
   }
 
-  &--ghost {
-    background: transparent;
-    color: #4a5568;
-    border-color: #e2e8f0;
-
-    &:hover {
-      background: #edf2f7;
-      color: #1a202c;
-      text-decoration: none;
-    }
+  &:active:not(:disabled) {
+    transform: translateY(1px);
   }
 }
 
+.btn--primary {
+  background: $color-primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: $color-gray-600;
+  border-color: $color-border;
+
+  &:hover {
+    background: $color-gray-100;
+    color: $color-text;
+    text-decoration: none;
+  }
+}
+
+// ─── Estados ────────────────────────────────────────────────────────────
 .state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: $space-12 $space-4;
   text-align: center;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  @include card;
+  border-radius: $radius-xl;
 }
 
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #3182ce;
+  border: 3px solid $color-border;
+  border-top-color: $color-primary;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin-bottom: 0.75rem;
+  margin-bottom: $space-3;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .alert {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
+  padding: $space-3 $space-4;
+  border-radius: $radius-lg;
+  margin-bottom: $space-5;
+  border: 1px solid transparent;
+}
 
-  &--error {
-    background: #fff5f5;
-    border: 1px solid #fed7d7;
-    color: #822727;
-  }
+.alert--error {
+  background: $color-danger-light;
+  border-color: $color-danger-border;
+  color: #822727;
 }

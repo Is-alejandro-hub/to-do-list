@@ -1,207 +1,221 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: $space-4;
+  margin-bottom: $space-6;
   flex-wrap: wrap;
 
-  h1 { margin: 0 0 0.25rem; }
-
-  &__subtitle {
-    margin: 0;
-    color: #718096;
-    font-size: 0.9rem;
+  h1 {
+    margin: 0 0 $space-1;
+    font-size: $font-2xl;
   }
+
+  @include mobile {
+    h1 {
+      font-size: $font-xl;
+    }
+  }
+}
+
+.page-header__subtitle {
+  margin: 0;
+  color: $color-text-muted;
+  font-size: $font-sm;
 }
 
 .filters {
-  background: white;
-  padding: 1rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
-
-  &__row {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    align-items: center;
-
-    &:not(:last-child) {
-      margin-bottom: 0.75rem;
-    }
-  }
-
-  &__search {
-    flex: 1;
-    min-width: 220px;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-
-    &:focus {
-      border-color: #3182ce;
-      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-    }
-  }
-
-  &__select,
-  &__input {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-family: inherit;
-    background: white;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-
-    &:focus {
-      border-color: #3182ce;
-      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-    }
-  }
-
-  &__checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: #4a5568;
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-  }
-
-  &__advanced {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e2e8f0;
+  @include card;
+  padding: $space-4;
+  margin-bottom: $space-6;
 }
 
-&__advanced-summary {
+.filters__row {
+  display: flex;
+  gap: $space-3;
+  flex-wrap: wrap;
+  align-items: center;
+
+  &:not(:last-child) {
+    margin-bottom: $space-3;
+  }
+
+  @include mobile {
+    gap: $space-2;
+  }
+}
+
+.filters__search {
+  flex: 1;
+  min-width: 220px;
+  padding: $space-2 $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  outline: none;
+  transition: border-color $transition-normal, box-shadow $transition-normal;
+
+  &:focus {
+    @include focus-ring;
+  }
+
+  @include mobile {
+    min-width: 100%;
+  }
+}
+
+.filters__select,
+.filters__input {
+  padding: $space-2 $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  background: white;
+  color: $color-text;
+  outline: none;
+  transition: border-color $transition-normal, box-shadow $transition-normal;
+
+  &:focus {
+    @include focus-ring;
+  }
+}
+
+.filters__checkbox {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  font-size: $font-sm;
+  color: $color-gray-600;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  input[type='checkbox'] {
+    cursor: pointer;
+    accent-color: $color-primary;
+  }
+}
+
+.filters__advanced {
+  margin-top: $space-3;
+  padding-top: $space-3;
+  border-top: 1px solid $color-border;
+}
+
+.filters__advanced-summary {
   cursor: pointer;
   list-style: none;
   user-select: none;
-  padding: 0.25rem 0;
+  padding: $space-1 0;
 
-  &::-webkit-details-marker { display: none; }
+  &::-webkit-details-marker {
+    display: none;
+  }
 
   &:hover .filters__advanced-content {
-    color: #1a202c;
+    color: $color-text;
   }
 }
 
-&__advanced-content {
+.filters__advanced-content {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #2d3748;
-  transition: color 0.15s;
+  gap: $space-2;
+  font-weight: $weight-semibold;
+  font-size: $font-sm;
+  color: $color-gray-700;
+  transition: color $transition-normal;
 }
 
-&__advanced-chevron {
+.filters__advanced-chevron {
   display: inline-block;
-  color: #718096;
-  transition: transform 0.15s;
-  font-size: 0.75rem;
+  color: $color-gray-500;
+  transition: transform $transition-normal;
+  font-size: $font-xs;
+  width: 12px;
 }
 
-details[open] &__advanced-chevron {
+details[open] .filters__advanced-chevron {
   transform: rotate(90deg);
 }
 
-&__badge {
+.filters__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #3182ce;
+  background: $color-primary;
   color: white;
   font-size: 0.7rem;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 0.1rem 0.5rem;
+  font-weight: $weight-bold;
+  border-radius: $radius-full;
+  padding: 0 $space-2;
   min-width: 20px;
   height: 20px;
   line-height: 1;
 }
 
-  &__badge {
-    background: #3182ce;
+.filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  min-width: 160px;
+}
+
+.filters__label {
+  font-size: $font-xs;
+  font-weight: $weight-semibold;
+  color: $color-gray-600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filters__tags-section {
+  margin-top: $space-3;
+}
+
+.filters__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  margin-top: $space-2;
+}
+
+.filters__tag {
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+  padding: $space-1 $space-3;
+  font-size: $font-xs;
+  color: $color-gray-600;
+  cursor: pointer;
+  transition: background $transition-normal, color $transition-normal,
+    border-color $transition-normal;
+
+  &:hover {
+    background: $color-gray-100;
+    border-color: $color-border-strong;
+  }
+
+  &.is-selected {
+    background: $color-primary;
+    border-color: $color-primary;
     color: white;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border-radius: 999px;
-    padding: 0.1rem 0.5rem;
-    min-width: 18px;
-    text-align: center;
   }
+}
 
-  &__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 160px;
-  }
-
-  &__label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #4a5568;
-  }
-
-  &__tags-section {
-    margin-top: 0.75rem;
-  }
-
-  &__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.4rem;
-  }
-
-  &__tag {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.8rem;
-    color: #4a5568;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-
-    &:hover {
-      background: #edf2f7;
-      border-color: #cbd5e0;
-    }
-
-    &.is-selected {
-      background: #3182ce;
-      border-color: #3182ce;
-      color: white;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.75rem;
-  }
+.filters__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: $space-3;
 }
 
 .task-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: $space-3;
 }
 
 .state {
@@ -209,96 +223,134 @@ details[open] &__advanced-chevron {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: $space-12 $space-4;
   text-align: center;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  @include card;
+  border-radius: $radius-xl;
+}
 
-  &--empty {
-    h2 { margin: 0.5rem 0; }
-    p { color: #718096; margin: 0 0 1rem; }
-    .btn { margin-top: 0.5rem; }
-  }
+.state__icon {
+  font-size: 3rem;
+  margin: 0 0 $space-2;
+  line-height: 1;
+}
 
-  &__icon {
-    font-size: 3rem;
-    margin: 0;
-  }
+.state h2 {
+  margin: $space-2 0;
+  font-size: $font-lg;
+}
+
+.state p {
+  color: $color-text-muted;
+  margin: 0 0 $space-4;
+}
+
+.state .btn {
+  margin-top: $space-2;
 }
 
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #3182ce;
+  border: 3px solid $color-border;
+  border-top-color: $color-primary;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin-bottom: 0.75rem;
+  margin-bottom: $space-3;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .alert {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  padding: $space-3 $space-4;
+  border-radius: $radius-lg;
+  margin-bottom: $space-4;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: $space-4;
+  border: 1px solid transparent;
+}
 
-  &--error {
-    background: #fff5f5;
-    border: 1px solid #fed7d7;
-    color: #822727;
-  }
+.alert--error {
+  background: $color-danger-light;
+  border-color: $color-danger-border;
+  color: #822727;
+}
 
-  &__close {
-    background: transparent;
-    border: none;
-    font-size: 1.25rem;
-    line-height: 1;
-    color: inherit;
-    cursor: pointer;
-    padding: 0 0.25rem;
-    opacity: 0.7;
+.alert__close {
+  background: transparent;
+  border: none;
+  font-size: $font-xl;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 $space-1;
+  opacity: 0.7;
+  transition: opacity $transition-fast;
 
-    &:hover { opacity: 1; }
+  &:hover {
+    opacity: 1;
   }
 }
 
+// ─── Botones (compartidos) ────────────────────────────────────────────────
 .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: $space-2 $space-4;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: $weight-medium;
   border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background $transition-normal, color $transition-normal,
+    border-color $transition-normal, transform $transition-fast;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  text-decoration: none;
 
-  &--primary {
-    background: #3182ce;
-    color: white;
-    &:hover { background: #2b6cb0; }
+  &:focus-visible {
+    @include focus-ring;
   }
 
-  &--ghost {
-    background: transparent;
-    color: #4a5568;
-    border-color: #e2e8f0;
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
 
-    &:hover:not(:disabled) {
-      background: #edf2f7;
-      color: #1a202c;
-    }
+.btn--primary {
+  background: $color-primary;
+  color: white;
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: $color-gray-600;
+  border-color: $color-border;
+
+  &:hover:not(:disabled) {
+    background: $color-gray-100;
+    color: $color-text;
+    text-decoration: none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
