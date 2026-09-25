@@ -12,13 +12,14 @@ import (
 // Cada método tiene un campo `fn` configurable. Si es nil, devuelve
 // un default razonable (nil error, slice vacío, etc.).
 type mockTaskRepository struct {
-	CreateFn     func(ctx context.Context, task *domain.Task) error
-	GetByIDFn    func(ctx context.Context, id uuid.UUID, includeDeleted bool) (*domain.Task, error)
-	ListFn       func(ctx context.Context, filter domain.TaskFilter) ([]domain.Task, error)
-	UpdateFn     func(ctx context.Context, id uuid.UUID, input domain.UpdateTaskInput) (*domain.Task, error)
-	SoftDeleteFn func(ctx context.Context, id uuid.UUID) error
-	RestoreFn    func(ctx context.Context, id uuid.UUID) error
-	ListTagsFn   func(ctx context.Context) ([]domain.Tag, error)
+	CreateFn            func(ctx context.Context, task *domain.Task) error
+	GetByIDFn           func(ctx context.Context, id uuid.UUID, includeDeleted bool) (*domain.Task, error)
+	ListFn              func(ctx context.Context, filter domain.TaskFilter) ([]domain.Task, error)
+	UpdateFn            func(ctx context.Context, id uuid.UUID, input domain.UpdateTaskInput) (*domain.Task, error)
+	SoftDeleteFn        func(ctx context.Context, id uuid.UUID) error
+	RestoreFn           func(ctx context.Context, id uuid.UUID) error
+	ListTagsFn          func(ctx context.Context) ([]domain.Tag, error)
+	ListAuditByTaskIDFn func(ctx context.Context, taskID uuid.UUID) ([]domain.AuditEntry, error)
 
 	// Registro de llamadas para verificar desde el test.
 	CreateCalls     int
@@ -28,6 +29,7 @@ type mockTaskRepository struct {
 	SoftDeleteCalls int
 	RestoreCalls    int
 	ListTagsCalls   int
+	ListAuditCalls  int
 
 	// Último input recibido, útil para verificar transformaciones.
 	LastFilter domain.TaskFilter
@@ -90,6 +92,14 @@ func (m *mockTaskRepository) ListTags(ctx context.Context) ([]domain.Tag, error)
 		return m.ListTagsFn(ctx)
 	}
 	return []domain.Tag{}, nil
+}
+
+func (m *mockTaskRepository) ListAuditByTaskID(ctx context.Context, taskID uuid.UUID) ([]domain.AuditEntry, error) {
+	m.ListAuditCalls++
+	if m.ListAuditByTaskIDFn != nil {
+		return m.ListAuditByTaskIDFn(ctx, taskID)
+	}
+	return []domain.AuditEntry{}, nil
 }
 
 // mockIdempotencyRepository implementa domain.IdempotencyRepository.
